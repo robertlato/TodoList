@@ -60,7 +60,7 @@ if [ $? -eq "0" ]; then
 		"Nowa lista") nowa_lista;;
 		"Wyswietl") wyswietl;;
 		"Zakoncz") echo "Koncze program"; exit 1;;
-		*) echo "Cos poszlo nie tak";;
+		*) echo "Cos poszlo nie tak"; menu;;
 	esac
 else
 	echo "Koncze program"
@@ -83,8 +83,11 @@ NAZWA=`zenity --entry --title="Nowa lista" --text="Podaj nazwe nowej listy"`
 if [[ $NAZWA =~ ^[a-zA-Z]+$ ]];then
 	touch /home/$UZYTKOWNIK/todo/$NAZWA.todo
 	chmod 700 /home/$UZYTKOWNIK/todo/$NAZWA.todo
+elif [ $? -eq "1" ]; then #uzytkownik nie wybral zadnej opcji, ale wybral przycisk "ok" zamiast "cancel"
+	menu
 else
 	echo "Podales zla nazwe"
+	menu
 fi
 
 }
@@ -98,7 +101,7 @@ fi
 #poczatek funkcji#############################################
 ##############################################################
 function wyswietl(){
-
+#wybor = nazwa listy
 WYBOR=$(zenity --list \
 	--title="Todo list" \
 	--text="Dostepne listy. Wybierz jedna z list, aby zobaczyc szczegoly" \
@@ -108,7 +111,10 @@ WYBOR=$(zenity --list \
 if [ $? -eq "0" ]; then
 	WYBOR2=$(zenity --list \
 	--title=$WYBOR \
-	--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
+	#--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
+	--text=`while read -r line; do \
+	 	echo $line \
+	 	done < /home/$UZYTKOWNIK/todo/$WYBOR` \
 	--column="Dostepne opcje" \
 	"Dodaj" \
 	"Usun" \
@@ -117,10 +123,10 @@ if [ $? -eq "0" ]; then
 	if [ $? -eq "0" ]; then
 	
 		case "$WYBOR2" in
-			"Dodaj") menu;;
+			"Dodaj") dodaj_zadanie $WYBOR;;
 			"Usun") menu;;
 			"Powrot do menu") menu;;
-			*) echo "Cos poszlo nie tak";;
+			*) echo "Cos poszlo nie tak"; menu;;
 		esac
 	else
 		menu
@@ -130,15 +136,27 @@ else
 	
 fi
 
-
-
-
 }
 #-------------------------------------------------------------
 #koniec funkcji-----------------------------------------------
 #-------------------------------------------------------------
 
 
+
+##############################################################
+#poczatek funkcji#############################################
+##############################################################
+function dodaj_zadanie(){
+	ZADANIE=`zenity --entry --title="$1 - nowe zadanie" --text="Wprowadz zadanie"`
+	echo $ZADANIE >> /home/$UZYTKOWNIK/todo/$1
+	#$ZADANIE
+	menu
+}
+
+
+#-------------------------------------------------------------
+#koniec funkcji-----------------------------------------------
+#-------------------------------------------------------------
 
 
 menu $@
