@@ -108,13 +108,16 @@ WYBOR=$(zenity --list \
 	--column="Listy" \
 	`ls /home/$UZYTKOWNIK/todo`)
 
+unset list
+list=`cat /home/$UZYTKOWNIK/todo/$WYBOR`
+#while read -r line
+#do
+#	list+=("$line")
+#done < /home/$UZYTKOWNIK/todo/$WYBOR
 if [ $? -eq "0" ]; then
 	WYBOR2=$(zenity --list \
 	--title=$WYBOR \
-	#--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
-	--text=`while read -r line; do \
-	 	echo $line \
-	 	done < /home/$UZYTKOWNIK/todo/$WYBOR` \
+	--text="Twoja lista zadan: \n\n${list[@]}"\
 	--column="Dostepne opcje" \
 	"Dodaj" \
 	"Usun" \
@@ -137,10 +140,31 @@ else
 fi
 
 }
+#--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
 #-------------------------------------------------------------
 #koniec funkcji-----------------------------------------------
 #-------------------------------------------------------------
 
+
+##############################################################
+#poczatek funkcji#############################################
+##############################################################
+function wczytaj_plik(){
+	unset list
+	list=`cat /home/$UZYTKOWNIK/todo/$1`
+	#while read -r line
+	#do
+	#    list+=("$line")
+	#done < /home/$UZYTKOWNIK/todo/$1
+	#cat list
+	echo "${list[@]}"
+
+}
+
+
+#-------------------------------------------------------------
+#koniec funkcji-----------------------------------------------
+#-------------------------------------------------------------
 
 
 ##############################################################
