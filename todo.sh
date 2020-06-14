@@ -103,44 +103,44 @@ fi
 #poczatek funkcji#############################################
 ##############################################################
 function wyswietl(){
-#wybor = nazwa listy
-WYBOR=$(zenity --list \
-	--title="Todo list" \
-	--text="Dostepne listy. Wybierz jedna z list, aby zobaczyc szczegoly" \
-	--column="Listy" \
-	`ls /home/$UZYTKOWNIK/todo`)
+	#wybor = nazwa listy
+	WYBOR=$(zenity --list \
+		--title="Todo list" \
+		--text="Dostepne listy. Wybierz jedna z list, aby zobaczyc szczegoly" \
+		--column="Listy" \
+		`ls /home/$UZYTKOWNIK/todo`)
 
-unset list
-list=`cat /home/$UZYTKOWNIK/todo/$WYBOR`
-#while read -r line
-#do
-#	list+=("$line")
-#done < /home/$UZYTKOWNIK/todo/$WYBOR
-if [ $? -eq "0" ]; then
-	WYBOR2=$(zenity --list \
-	--title=$WYBOR \
-	--height=300 \
-	--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
-	--column="Dostepne opcje" \
-	"Dodaj" \
-	"Usun" \
-	"Powrot do menu" )
-	
 	if [ $? -eq "0" ]; then
-	
-		case "$WYBOR2" in
-			"Dodaj") dodaj_zadanie $WYBOR;;
-			"Usun") menu;;
-			"Powrot do menu") menu;;
-			*) echo "Cos poszlo nie tak"; menu;;
-		esac
+	unset list
+	list=`cat /home/$UZYTKOWNIK/todo/$WYBOR`
+	#while read -r line
+	#do
+	#	list+=("$line")
+	#done < /home/$UZYTKOWNIK/todo/$WYBOR
+		WYBOR2=$(zenity --list \
+		--title=$WYBOR \
+		--height=300 \
+		--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
+		--column="Dostepne opcje" \
+		"Dodaj" \
+		"Usun" \
+		"Powrot do menu" )
+		
+		if [ $? -eq "0" ]; then
+		
+			case "$WYBOR2" in
+				"Dodaj") dodaj_zadanie $WYBOR;;
+				"Usun") usun_zadanie $WYBOR;;
+				"Powrot do menu") menu;;
+				*) echo "Cos poszlo nie tak"; menu;;
+			esac
+		else
+			menu
+		fi
 	else
 		menu
+		
 	fi
-else
-	menu
-	
-fi
 
 }
 #--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
@@ -152,15 +152,28 @@ fi
 ##############################################################
 #poczatek funkcji#############################################
 ##############################################################
-function wczytaj_plik(){
+function usun_zadanie(){
+
 	unset list
-	list=`cat /home/$UZYTKOWNIK/todo/$1`
-	#while read -r line
-	#do
-	#    list+=("$line")
-	#done < /home/$UZYTKOWNIK/todo/$1
-	#cat list
-	echo "${list[@]}"
+	while read -r line
+	do
+		list+=("$line")
+	done < /home/$UZYTKOWNIK/todo/$1
+
+	WYBOR=$(zenity --list \
+	--title=$WYBOR \
+	--height=300 \
+	--width=400 \
+	--text="Wybierz, ktore zadania chcesz usunac: " \
+	--column="Twoja lista zadan" \
+	"${list[@]}")
+	
+	if [ $? -eq "0" ]; then
+		sed -i "\?^$WYBOR?d" /home/$UZYTKOWNIK/todo/$1
+	fi
+	
+	
+	wyswietl $1
 
 }
 
