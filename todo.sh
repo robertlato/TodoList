@@ -46,6 +46,8 @@ opcje $@
 
 WYBOR=`zenity --list \
 	--title="Todo list" \
+	--height=300 \
+	--width=400 \
 	--text="Menu glowne. Wybierz jedna z opcji:\n" \
 	--column="Menu"\
 	"Nowa lista" \
@@ -117,7 +119,8 @@ list=`cat /home/$UZYTKOWNIK/todo/$WYBOR`
 if [ $? -eq "0" ]; then
 	WYBOR2=$(zenity --list \
 	--title=$WYBOR \
-	--text="Twoja lista zadan: \n\n${list[@]}"\
+	--height=300 \
+	--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
 	--column="Dostepne opcje" \
 	"Dodaj" \
 	"Usun" \
@@ -172,7 +175,7 @@ function wczytaj_plik(){
 ##############################################################
 function dodaj_zadanie(){
 	ZADANIE=`zenity --entry --title="$1 - nowe zadanie" --text="Wprowadz zadanie"`
-	echo $ZADANIE >> /home/$UZYTKOWNIK/todo/$1
+	echo "`date +'%d/%m/%Y/%R'` $ZADANIE" >> /home/$UZYTKOWNIK/todo/$1
 	#$ZADANIE
 	menu
 }
