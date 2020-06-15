@@ -60,6 +60,7 @@ if [ $? -eq "0" ]; then
 	case "$WYBOR" in
 		"Nowa lista") nowa_lista;;
 		"Wyswietl") wyswietl_listy;;
+		"Usun") usun_liste;;
 		"Zakoncz") echo "Koncze program"; exit 1;;
 		*) echo "Cos poszlo nie tak"; menu;;
 	esac
@@ -79,16 +80,15 @@ fi
 ##############################################################
 function nowa_lista(){
 
+#zenity --entry nie zwraca return code'u -> zawsze jest to 1. entry zwraca standard output
 NAZWA=`zenity --entry --title="Nowa lista" --text="Podaj nazwe nowej listy"`
 
 if [[ $NAZWA =~ ^[a-zA-Z]+$ ]];then
 	touch /home/$UZYTKOWNIK/todo/$NAZWA.todo
 	chmod 700 /home/$UZYTKOWNIK/todo/$NAZWA.todo
 	pokaz_zadania $NAZWA.todo
-elif [ $? -eq "1" ]; then #uzytkownik nie wybral zadnej opcji, ale wybral przycisk "ok" zamiast "cancel"
-	menu
 else
-	echo "Podales zla nazwe"
+	zenity --info --title="Todo list" --text="Sprobuj bez spacji i znakow specjalnych" --ellipsize 
 	menu
 fi
 
@@ -110,7 +110,8 @@ function wyswietl_listy(){
 		--column="Listy" \
 		`ls /home/$UZYTKOWNIK/todo`)
 
-	if [ $? -eq "0" ]; then
+
+	if [ $? -eq "0" ] && [ -f /home/$UZYTKOWNIK/todo/$WYBOR ] ; then
 		pokaz_zadania $WYBOR
 	else
 		menu
@@ -118,7 +119,7 @@ function wyswietl_listy(){
 	fi
 
 }
-#--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
+
 #-------------------------------------------------------------
 #koniec funkcji-----------------------------------------------
 #-------------------------------------------------------------
@@ -129,37 +130,32 @@ function wyswietl_listy(){
 function pokaz_zadania(){
 	unset list
 	list=`cat /home/$UZYTKOWNIK/todo/$1`
-	#while read -r line
-	#do
-	#	list+=("$line")
-	#done < /home/$UZYTKOWNIK/todo/$WYBOR
-		WYBOR2=$(zenity --list \
-		--title=$1 \
-		--height=300 \
-		--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
-		--column="Dostepne opcje" \
-		"Dodaj" \
-		"Usun" \
-		"Powrot do menu" \
-		"Pozostale listy" )
-		
-		if [ $? -eq "0" ]; then
-		
-			case "$WYBOR2" in
-				"Dodaj") dodaj_zadanie $1;;
-				"Usun") usun_zadanie $1;;
-				"Powrot do menu") menu;;
-				"Pozostale listy") wyswietl_listy;;
-				*) echo "Cos poszlo nie tak"; menu;;
-			esac
-		else
-			menu
-		fi
-		
+	WYBOR2=$(zenity --list \
+	--title=$1 \
+	--height=300 \
+	--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
+	--column="Dostepne opcje" \
+	"Dodaj" \
+	"Usun" \
+	"Powrot do menu" \
+	"Pozostale listy" )
+	
+	if [ $? -eq "0" ]; then
+	
+		case "$WYBOR2" in
+			"Dodaj") dodaj_zadanie $1;;
+			"Usun") usun_zadanie $1;;
+			"Powrot do menu") menu;;
+			"Pozostale listy") wyswietl_listy;;
+			*) echo "Cos poszlo nie tak"; menu;;
+		esac
+	else
+		menu
+	fi
+	
 
 }
 
-#--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
 #-------------------------------------------------------------
 #koniec funkcji-----------------------------------------------
 #-------------------------------------------------------------
@@ -202,12 +198,50 @@ function usun_zadanie(){
 ##############################################################
 function dodaj_zadanie(){
 	ZADANIE=`zenity --entry --title="$1 - nowe zadanie" --text="Wprowadz zadanie"`
-	echo "`date +'%d/%m/%Y/%R'` $ZADANIE" >> /home/$UZYTKOWNIK/todo/$1
+	echo "`date +'%d/%m/%Y/%T'` $ZADANIE" >> /home/$UZYTKOWNIK/todo/$1
 	#$ZADANIE
 	pokaz_zadania $1
 	shift $(( OPTIND - 1 ))
 }
 
+
+#-------------------------------------------------------------
+#koniec funkcji-----------------------------------------------
+#-------------------------------------------------------------
+
+
+##############################################################
+#poczatek funkcji#############################################
+##############################################################
+function usun_liste(){
+
+	WYBOR=$(zenity --list \
+		--title="Todo list" \
+		--text="Dostepne listy. Wybierz liste, ktora chcialbys usunac: " \
+		--column="Listy" \
+		`ls /home/$UZYTKOWNIK/todo`)
+		
+	if [ $? -eq "0" ]; then
+		if [ -f /home/$UZYTKOWNIK/todo/$WYBOR ]; then
+			WYBOR2=$(zenity --question \
+				--title="Todo list" \
+				--ellipsize \
+				--text="$WYBOR \nCzy na pewno chcesz usunac ta liste?")
+			
+			if [ $? -eq "0" ]; then
+				rm -r /home/$UZYTKOWNIK/todo/$WYBOR
+				menu
+			else
+				menu
+			fi
+		else 
+			menu
+		fi
+	else
+		menu
+		
+	fi
+}
 
 #-------------------------------------------------------------
 #koniec funkcji-----------------------------------------------
