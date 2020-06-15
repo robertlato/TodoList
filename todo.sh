@@ -8,7 +8,7 @@ mkdir -p /home/$UZYTKOWNIK/todo
 ##############################################################
 function opcje(){
 local OPTIND opt i
-while getopts ":vh" opt; do
+while getopts ":a::fhs:v" opt; do
 	case $opt in
 		v) 	echo "Autor: Robert Latoszewski"
 			echo "Wersja: 1.0"
@@ -19,13 +19,31 @@ while getopts ":vh" opt; do
 Program do tworzenia i edycji list zadan do zrobienia.
 Dostepne opcje: 
 
-W KROTCE
+-f			- Wyswietl wszystkie dostepne listy zadan.
+
+-h 			- Wyswietl ten widok pomocy.
+
+-s [lista]		- Wyswietl wszystkie zadania danej listy. 
+
+-v			- Wyswietl informacje o autorze orazo wersji programu. 
 
 
 _EOF
 exit 1;;
+		f)	ls /home/$UZYTKOWNIK/todo
+			exit 1;;
+			
+		s)	target=$OPTARG	
+			if [ -f /home/$UZYTKOWNIK/todo/$target ]; then	
+				cat /home/$UZYTKOWNIK/todo/$target
+			else
+				echo "Nie ma takiej listy."
+			fi
+			exit 1;;
 
 		\?)	echo "Blednie wybrana opcja";;
+		:)	echo "Podano zly argument"
+			exit 1;;
 	esac
 done
 shift $(( OPTIND - 1 ))
