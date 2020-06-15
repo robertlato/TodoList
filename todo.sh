@@ -16,7 +16,9 @@ while getopts ":a::fhs:v" opt; do
 
 		h) 	cat << _EOF
 			
-Program do tworzenia i edycji list zadan do zrobienia.
+Todo list to program do tworzenia i edycji list zadan do zrobienia.
+Program korzysta z interfejsu graficznego przy pomocy okien dialogowych GTK+ (zenity).
+Kluczowa funkcjonalnosc jest dostepna sa przez uruchomienie skryptu bez dodatkowych opcji wywolan.
 Dostepne opcje: 
 
 -f			- Wyswietl wszystkie dostepne listy zadan.
