@@ -53,14 +53,13 @@ WYBOR=`zenity --list \
 	"Nowa lista" \
 	"Wyswietl" \
 	"Usun" \
-	"Edytuj" \
 	"Zakoncz"`
 	
 if [ $? -eq "0" ]; then
 	
 	case "$WYBOR" in
 		"Nowa lista") nowa_lista;;
-		"Wyswietl") wyswietl;;
+		"Wyswietl") wyswietl_listy;;
 		"Zakoncz") echo "Koncze program"; exit 1;;
 		*) echo "Cos poszlo nie tak"; menu;;
 	esac
@@ -85,6 +84,7 @@ NAZWA=`zenity --entry --title="Nowa lista" --text="Podaj nazwe nowej listy"`
 if [[ $NAZWA =~ ^[a-zA-Z]+$ ]];then
 	touch /home/$UZYTKOWNIK/todo/$NAZWA.todo
 	chmod 700 /home/$UZYTKOWNIK/todo/$NAZWA.todo
+	pokaz_zadania $NAZWA.todo
 elif [ $? -eq "1" ]; then #uzytkownik nie wybral zadnej opcji, ale wybral przycisk "ok" zamiast "cancel"
 	menu
 else
@@ -102,7 +102,7 @@ fi
 ##############################################################
 #poczatek funkcji#############################################
 ##############################################################
-function wyswietl(){
+function wyswietl_listy(){
 	#wybor = nazwa listy
 	WYBOR=$(zenity --list \
 		--title="Todo list" \
@@ -111,32 +111,7 @@ function wyswietl(){
 		`ls /home/$UZYTKOWNIK/todo`)
 
 	if [ $? -eq "0" ]; then
-	unset list
-	list=`cat /home/$UZYTKOWNIK/todo/$WYBOR`
-	#while read -r line
-	#do
-	#	list+=("$line")
-	#done < /home/$UZYTKOWNIK/todo/$WYBOR
-		WYBOR2=$(zenity --list \
-		--title=$WYBOR \
-		--height=300 \
-		--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
-		--column="Dostepne opcje" \
-		"Dodaj" \
-		"Usun" \
-		"Powrot do menu" )
-		
-		if [ $? -eq "0" ]; then
-		
-			case "$WYBOR2" in
-				"Dodaj") dodaj_zadanie $WYBOR;;
-				"Usun") usun_zadanie $WYBOR;;
-				"Powrot do menu") menu;;
-				*) echo "Cos poszlo nie tak"; menu;;
-			esac
-		else
-			menu
-		fi
+		pokaz_zadania $WYBOR
 	else
 		menu
 		
@@ -148,12 +123,51 @@ function wyswietl(){
 #koniec funkcji-----------------------------------------------
 #-------------------------------------------------------------
 
+##############################################################
+#poczatek funkcji#############################################
+##############################################################
+function pokaz_zadania(){
+	unset list
+	list=`cat /home/$UZYTKOWNIK/todo/$1`
+	#while read -r line
+	#do
+	#	list+=("$line")
+	#done < /home/$UZYTKOWNIK/todo/$WYBOR
+		WYBOR2=$(zenity --list \
+		--title=$1 \
+		--height=300 \
+		--text="Twoja lista zadan: \n\n${list[@]}\n\n"\
+		--column="Dostepne opcje" \
+		"Dodaj" \
+		"Usun" \
+		"Powrot do menu" \
+		"Pozostale listy" )
+		
+		if [ $? -eq "0" ]; then
+		
+			case "$WYBOR2" in
+				"Dodaj") dodaj_zadanie $1;;
+				"Usun") usun_zadanie $1;;
+				"Powrot do menu") menu;;
+				"Pozostale listy") wyswietl_listy;;
+				*) echo "Cos poszlo nie tak"; menu;;
+			esac
+		else
+			menu
+		fi
+		
+
+}
+
+#--text=`cat < /home/$UZYTKOWNIK/todo/$WYBOR` \
+#-------------------------------------------------------------
+#koniec funkcji-----------------------------------------------
+#-------------------------------------------------------------
 
 ##############################################################
 #poczatek funkcji#############################################
 ##############################################################
 function usun_zadanie(){
-
 	unset list
 	while read -r line
 	do
@@ -161,7 +175,7 @@ function usun_zadanie(){
 	done < /home/$UZYTKOWNIK/todo/$1
 
 	WYBOR=$(zenity --list \
-	--title=$WYBOR \
+	--title=$1 \
 	--height=300 \
 	--width=400 \
 	--text="Wybierz, ktore zadania chcesz usunac: " \
@@ -173,7 +187,7 @@ function usun_zadanie(){
 	fi
 	
 	
-	wyswietl $1
+	pokaz_zadania $1
 
 }
 
@@ -190,7 +204,8 @@ function dodaj_zadanie(){
 	ZADANIE=`zenity --entry --title="$1 - nowe zadanie" --text="Wprowadz zadanie"`
 	echo "`date +'%d/%m/%Y/%R'` $ZADANIE" >> /home/$UZYTKOWNIK/todo/$1
 	#$ZADANIE
-	menu
+	pokaz_zadania $1
+	shift $(( OPTIND - 1 ))
 }
 
 
