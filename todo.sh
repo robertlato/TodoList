@@ -277,6 +277,7 @@ function usun_liste(){
 			
 			if [ $? -eq "0" ]; then
 				rm -r /home/$UZYTKOWNIK/todo/$WYBOR
+				rm -r /home/$UZYTKOWNIK/"todo history"/"${WYBOR//.todo/.tdhs}"
 				menu
 			else
 				menu
