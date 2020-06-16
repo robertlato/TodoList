@@ -1,6 +1,7 @@
 #! /bin/bash
 UZYTKOWNIK=$(whoami)
 mkdir -p /home/$UZYTKOWNIK/todo
+mkdir -p /home/$UZYTKOWNIK/"todo history"
 
 
 ##############################################################
@@ -105,7 +106,9 @@ NAZWA=`zenity --entry --title="Nowa lista" --text="Podaj nazwe nowej listy"`
 
 if [[ $NAZWA =~ ^[a-zA-Z]+$ ]];then
 	touch /home/$UZYTKOWNIK/todo/$NAZWA.todo
+	touch /home/$UZYTKOWNIK/"todo history"/$NAZWA.tdhs
 	chmod 700 /home/$UZYTKOWNIK/todo/$NAZWA.todo
+	chmod 700 /home/$UZYTKOWNIK/"todo history"/$NAZWA.tdhs
 	pokaz_zadania $NAZWA.todo
 else
 	zenity --info --title="Todo list" --text="Sprobuj bez spacji i znakow specjalnych" --ellipsize 
@@ -148,6 +151,7 @@ function wyswietl_listy(){
 #poczatek funkcji#############################################
 ##############################################################
 function pokaz_zadania(){
+#$1 to nazwa todo listy
 	unset list
 	list=`cat /home/$UZYTKOWNIK/todo/$1`
 	WYBOR2=$(zenity --list \
@@ -157,6 +161,7 @@ function pokaz_zadania(){
 	--column="Dostepne opcje" \
 	"Dodaj" \
 	"Usun" \
+	"Pokaz historie" \
 	"Powrot do menu" \
 	"Pozostale listy" )
 	
@@ -165,6 +170,7 @@ function pokaz_zadania(){
 		case "$WYBOR2" in
 			"Dodaj") dodaj_zadanie $1;;
 			"Usun") usun_zadanie $1;;
+			"Pokaz historie") pokaz_historie $1;;
 			"Powrot do menu") menu;;
 			"Pozostale listy") wyswietl_listy;;
 			*) echo "Cos poszlo nie tak"; menu;;
@@ -174,6 +180,25 @@ function pokaz_zadania(){
 	fi
 	
 
+}
+
+#-------------------------------------------------------------
+#koniec funkcji-----------------------------------------------
+#-------------------------------------------------------------
+
+##############################################################
+#poczatek funkcji#############################################
+##############################################################
+
+function pokaz_historie(){
+	NAZWA="${1//.todo/.tdhs}"
+	zenity --text-info \
+	--title="Historia zadan wykopnanych z listy $1" \
+	--filename=/home/$UZYTKOWNIK/"todo history"/$NAZWA \
+	--width=1000 \
+	--height=800
+	
+	pokaz_zadania $1	
 }
 
 #-------------------------------------------------------------
@@ -200,6 +225,8 @@ function usun_zadanie(){
 	
 	if [ $? -eq "0" ]; then
 		sed -i "\?^$WYBOR?d" /home/$UZYTKOWNIK/todo/$1
+		HISTORY="${1//.todo/.tdhs}" #zamien nazwe_listy.todo na nazwe_listy.tdhs
+		echo $WYBOR >> /home/$UZYTKOWNIK/"todo history"/$HISTORY # dodaj usuniete zadanie do historii
 	fi
 	
 	
