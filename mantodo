@@ -1,0 +1,57 @@
+.TH "Todo list" 1 "16 czerwiec 2020" "Todo list Manpage" "Todo list Manpage"
+.SH NAZWA
+Todo list \- menadzer list "do zrobienia"
+.SH SKLADNIA
+.B "todo "
+[opcje]
+.SH OPIS
+.B Todo list
+to program do tworzenia i edycji list zadan "do zrobienia".
+Program korzysta z interfejsu graficznego przy pomocy okien dialogowych 
+.I GTK+ (zenity).
+Kluczowa funkcjonalnosc jest dostepna przez uruchomienie skryptu 
+.I bez
+dodatkowych opcji wywolan. Program przy uzyciu interfejsu graficznego jest prosty i intuicyjny w obsludze. Glowne funkcjonalnosci to: 
+.IP "- Tworzenie nowych list"
+.IP "- Edycja list (dodaj / usun zadanie)"
+.IP "- Zapisywanie historii wykonanych zadan"
+.IP "- Usuwanie list"
+.SH OPCJE
+.IP -f
+Wyswietl 
+.I wszystkie
+dostepne listy zadan.
+.IP -h
+Wyswietl widok pomocy
+.IP "-s [nazwa listy]"
+Wyswietl wszystkie zadania 
+.I danej
+listy.
+.IP -v
+Wyswietl informacje o autorze oraz wersji programu. 
+.SH PLIKI
+.I /home/uzytkownik/todo
+.RS
+Folder, w ktorym przechowywane sa wszystkie tworzone przez 
+.I uzytkownika
+listy
+.RE
+.I "/home/uzytkownik/todo history"
+.RS
+Folder, w ktorym przechowywane sa wszystkie pliki z historia 
+.I "wykonanych zadan."
+.SH DIAGNOSTYKA
+Uzytkownik moze napotkac nastepujace komunikaty:
+ 
+-Sprobuj bez spacji i znakow specjalnych
+.RS
+Komunikat wystepuje przy tworzeniu nowej listy w przypadku, gdy uzytkownik uzywa spacji w nazwie nowej listy lub uzytkownik zatwierdza stworzenie nowej listy bez wprowadzenia jakiejkolwiek nazwy.
+.SH BLEDY / TODO
+.IP "- Nazwy list nie moga zawierac spacji"
+.IP "- Przy probie usuniecia zadan z pustej listy dopisuje sie pusta linia do historii wykonanych zadan"
+.IP "- Zadanie nie moze przyjmowac znaku backslash - powoduje to problem z usuwaniem i wyswietlaniem takiego zadania"
+.IP "- Przy wyswietlaniu niektorych wybieralnych opcji trzeba przewijac widok, aby zobaczyc wszystkie."
+.SH AUTOR
+Robert Latoszewski
+.RE
+s167866@student.pg.edu.pl
